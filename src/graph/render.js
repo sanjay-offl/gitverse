@@ -1,0 +1,8 @@
+import {esc,STATUS_LABEL,universeNumber,fmtDate} from '../ui/utils.js';
+export function renderTimeline(container,layout,onSelect){
+  const labels=layout.trunkNodes.filter((_,i)=>i%Math.max(1,Math.ceil(layout.trunkNodes.length/30))===0).map(({commit,x,y})=>`<text class="tl-date" x="30" y="${y}">${esc(fmtDate(commit.date))}</text>`).join('');
+  const trunkNodes=layout.trunkNodes.map(({commit,x,y})=>`<circle class="tl-node tl-node--sacred" cx="${x}" cy="${y}" r="5"><title>${esc(commit.sha)} — ${esc(commit.message)}</title></circle>`).join('');
+  const branchMarkup=layout.branches.map((branch)=>`<path class="tl-branch tl-branch--${branch.status}" data-fork="${branch.forkRatio}" d="${branch.path}"/>${branch.nodes.map(({commit,x,y})=>`<circle class="tl-node tl-node--${branch.status}" cx="${x}" cy="${y}" r="4"><title>${esc(commit.sha)} — ${esc(commit.message)}</title></circle>`).join('')}<g class="tl-label" tabindex="0" data-branch="${esc(branch.name)}"><text x="${branch.labelAnchor.x+12}" y="${branch.labelAnchor.y}">UNIVERSE ${universeNumber(branch.tip)} · ${esc(branch.name)} · ${STATUS_LABEL[branch.status]}</text></g>`).join('');
+  container.innerHTML=`<svg class="tl-svg" viewBox="0 0 ${layout.width} ${layout.height}" role="img" aria-label="Git branch timeline"><path class="tl-trunk" d="${layout.trunkPath}"/>${labels}${trunkNodes}${branchMarkup}</svg>`;
+  container.querySelectorAll('.tl-label').forEach((label)=>{const select=()=>onSelect((layout.branches||[]).find((branch)=>branch.name===label.dataset.branch));label.addEventListener('click',select);label.addEventListener('keydown',(event)=>{if(event.key==='Enter'||event.key===' ')select()})});
+}

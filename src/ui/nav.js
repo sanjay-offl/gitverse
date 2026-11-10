@@ -1,0 +1,1 @@
+export function initNav(){const button=document.querySelector('#nav-toggle');const links=document.querySelector('#nav-links');button.addEventListener('click',()=>{const open=links.classList.toggle('is-open');button.setAttribute('aria-expanded',String(open))});links.querySelectorAll('a').forEach((link)=>link.addEventListener('click',()=>links.classList.remove('is-open')))}
